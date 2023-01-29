@@ -9,6 +9,41 @@
 #define I2C_device_id 0
 #define ADDR 0x44
 
+//res uint_8
+int compu(int check_num,int de){
+    int large[24];//bool
+    int dearray[9];//bool
+    int res = 0;//uint_8
+    for (int i=8;i>=0;i--){
+        dearray[i] = de&1;
+        de>>=1;
+    }
+    for (int i=23;i>=0;i--){
+        large[i] = check_num&1;
+        check_num>>=1;
+    }
+    int *pointer = large;
+    while(true){
+        while(*pointer!=1&&pointer-large<=15){
+            pointer++;
+        }
+        if(pointer-large>15)
+            break;
+        for (int i=0;i<9;i++)
+            *(pointer+i) = *(pointer+i)^dearray[i];
+    }
+    for(int i=(int)(pointer-large);i<24;i++){
+        res = res*2+large[i];
+    }
+    return res;
+}
+//res uint_8
+int Crc_check(int input,int check_num){//input 16,check_num 8
+    int a = input<<8;
+    check_num = a+check_num;
+    return compu(check_num,0b100110001);;
+}
+
 float count_TEMP(uint16_t input){
     return -45+175*(float)input/(2<<16-1);
 }
