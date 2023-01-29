@@ -10,13 +10,13 @@
 #define ADDR 0x44
 
 //res uint_8
-unsigned char CRC8(unsigned char *ptr, unsigned char len,uint8_t check_code)
+unsigned char CRC8(int8_t *ptr, int8_t len,uint8_t check_code)
 {
 	uint8_t crc = 0xFF;
     uint8_t bit = 0;
 	uint8_t byteCrc;
     const int16_t Pol = 0x131;
-    for (byteCrc = 0;byteCrc<len;++len){
+    for (byteCrc = 0;byteCrc<len;++byteCrc){
         crc ^= (ptr[byteCrc]);
         for(bit = 8;bit>0;--bit){
             if(crc & 0x80){
@@ -28,9 +28,9 @@ unsigned char CRC8(unsigned char *ptr, unsigned char len,uint8_t check_code)
     
     }
     if (crc != check_code){
-        return 1;
+        return 0;
     }
-    return 0;
+    return 1;
 }
 
 //res uint_8
@@ -60,8 +60,8 @@ int MeansureBuffer(float *temp,float*humi){
     IoTI2cWriteread(I2C_device_id, ADDR<<1, &data);
     getTemp = ((uint16_t)data.receiveBuf[0]<<8)|data.receiveBuf[1];
     getHumi = ((uint16_t)data.receiveBuf[3]<<8)|data.receiveBuf[4];
-    printf("%d %d %d",receive_buffer[0],receive_buffer[1],receive_buffer[2]);
-    if((CRC8(data.receiveBuf,2,data.receiveBuf[2]))||(CRC8(data.receiveBuf+3,2,data.receiveBuf[5])))
+    
+    if((CRC8(data.receiveBuf,2,data.receiveBuf[2]))&&(CRC8(data.receiveBuf+3,2,data.receiveBuf[5])))
         {
             
             *temp = count_TEMP(getTemp);
