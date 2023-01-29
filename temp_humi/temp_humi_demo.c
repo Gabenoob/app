@@ -9,6 +9,32 @@
 #define I2C_device_id 0
 #define ADDR 0x44
 
+//res uint_8
+unsigned char CRC8(unsigned char *ptr, unsigned char len,uint8_t check_code)
+{
+	uint8_t crc = 0xFF;
+    uint8_t bit = 0;
+	uint8_t byteCrc;
+    const int16_t Pol = 0x131;
+    for (byteCrc = 0;byteCrc<len;++len){
+        crc ^= (ptr[byteCrc]);
+        for(bit = 8;bit>0;--bit){
+            if(crc & 0x80){
+                crc = (crc << 1)^Pol;
+            }
+            else 
+            crc = (crc<<1);
+        }
+    
+    }
+    if (crc != check_code){
+        return 1;
+    }
+    return 0;
+}
+
+//res uint_8
+
 float count_TEMP(uint16_t input){
     return -45+175*(float)input/(2<<16-1);
 }
@@ -17,7 +43,7 @@ float count_HUMI(uint16_t input){
     return 100*(float)input/(2<<16-1);
 }
 
-void MeansureBuffer(float *temp,float*humi){
+int MeansureBuffer(float *temp,float*humi){
     uint8_t receive_buffer[6];
     uint8_t send_buff[2];
     uint16_t getTemp;
@@ -31,14 +57,18 @@ void MeansureBuffer(float *temp,float*humi){
     data.receiveBuf = receive_buffer;
     data.receiveLen = 6;
 
-    
     IoTI2cWriteread(I2C_device_id, ADDR<<1, &data);
-    getTemp = (uint16_t)data.receiveBuf[0]<<8|data.receiveBuf[1];
-    printf("\n%d\n",getTemp);
-    getHumi = (uint16_t)data.receiveBuf[3]<<8|data.receiveBuf[4];
-    printf("\n%d\n",getHumi);
-    *temp = count_TEMP(getTemp);
-    *humi = count_HUMI(getHumi);
+    getTemp = ((uint16_t)data.receiveBuf[0]<<8)|data.receiveBuf[1];
+    getHumi = ((uint16_t)data.receiveBuf[3]<<8)|data.receiveBuf[4];
+    printf("%d %d %d",receive_buffer[0],receive_buffer[1],receive_buffer[2]);
+    if((CRC8(data.receiveBuf,2,data.receiveBuf[2]))||(CRC8(data.receiveBuf+3,2,data.receiveBuf[5])))
+        {
+            
+            *temp = count_TEMP(getTemp);
+            *humi = count_HUMI(getHumi);
+            return 1;
+        }
+    return 0;
     
 }
 
@@ -49,6 +79,9 @@ void Init_SHT30(){
     IoTGpioSetFunc(14,IOT_GPIO_FUNC_GPIO_14_I2C0_SCL);
     IoTI2cInit(I2C_device_id,400000);
 
+    uint8_t send_buf[2] = {0x22,0x36};
+    IoTI2cWrite(I2C_device_id,ADDR<<1,send_buf,2);
+
 
 }
 
@@ -58,9 +91,12 @@ void detector(){
     float temp;
 
     while(1){
-        MeansureBuffer(&temp,&humi);
-        printf("temp is %f\n",temp);
-        printf("humi is %f\n",humi);
+        if(MeansureBuffer(&temp,&humi))
+        {
+            printf("temp is %f\n",temp);
+            printf("humi is %f\n",humi);
+            
+        }
         sleep(3);
     }
 }
