@@ -68,5 +68,6 @@ lite_component("app") {
         # "KP_GPS_example:gps_module",
         # "KP_MQ7_example:combustible_module",
         "temp_humi:temp_humi"
+        # "02OLED:oled"
     ]
 }
