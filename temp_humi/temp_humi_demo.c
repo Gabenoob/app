@@ -93,7 +93,7 @@ void detector(){
     while(1){
         if(MeansureBuffer(&temp,&humi))
         {
-            printf("temp is %f\n",temp);
+            printf("\ntemp is %f\n",temp);
             printf("humi is %f\n",humi);
             
         }

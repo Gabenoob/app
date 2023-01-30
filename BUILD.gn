@@ -67,8 +67,9 @@ lite_component("app") {
         # "KP_HeartRate_example:heartRate_module",
         # "KP_GPS_example:gps_module",
         # "KP_MQ7_example:combustible_module",
+        "KP_GPIO_led2:gpioled_example2"
+        # "OLED:oled"
         # "temp_humi:temp_humi"
-        # "02OLED:oled"
-        "wifi_demo:wifi_demo"
+        # "wifi_demo:wifi_demo"
     ]
 }
