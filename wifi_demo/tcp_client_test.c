@@ -10,11 +10,11 @@
 #include "wifi_sta_connect.h"
 
 
-#define CONFIG_WIFI_SSID "MY_PC" // 修改为自己的WiFi 热点账号
-#define CONFIG_WIFI_PWD "12345678" // 修改为自己的WiFi 热点密码
+#define CONFIG_WIFI_SSID "LIANGDONGWUYAO_Wi-Fi5" // 修改为自己的WiFi 热点账号
+#define CONFIG_WIFI_PWD "AA6638AA" // 修改为自己的WiFi 热点密码
 
 #define PEER_TCP_PORT           3861 // TCP服务器监听端口
-#define PEER_TCP_IP    "192.168.43.106"
+#define PEER_TCP_IP    "192.168.3.114"
 
 int client_fd = 0;
 unsigned char recvbuf[512] = {0};
@@ -22,7 +22,7 @@ const char *qihangsendmsg = "Hello! Received your message. This is qihang TCP Se
 
 /*任务执行函数，启动TCP服务器端*/
 static int tcp_client_task() {
-    struct sockaddr_in srv_addr = {0};
+    struct sockaddr_in srv_addr ={0};
     struct sockaddr_in client_addr = {0};
     int ret = 0;
     unsigned int opt = 1;

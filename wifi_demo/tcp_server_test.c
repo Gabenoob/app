@@ -11,12 +11,12 @@
 
 #include "iot_gpio.h"
 #include "iot_gpio_ex.h"
-#include "iot_pwm.h"
+// #include "iot_pwm.h"
 
 
 
-#define CONFIG_WIFI_SSID "MY_PC" // 修改为自己的WiFi 热点账号
-#define CONFIG_WIFI_PWD "12345678" // 修改为自己的WiFi 热点密码
+#define CONFIG_WIFI_SSID "LIANGDONGWUYAO_Wi-Fi5" // 修改为自己的WiFi 热点账号
+#define CONFIG_WIFI_PWD "AA6638AA" // 修改为自己的WiFi 热点密码
 
 #define TCP_LISTEN_PORT           12345 // TCP服务器监听端口
 #define IP_TCP_SERVER_LISTEN_NUM  4  // TCP最大连接数

@@ -13,7 +13,7 @@
 
 static_library("wifi_demo") {
     sources = [
-        "wifi_ap.c",
+        "tcp_client_test.c",
         "wifi_sta_connect.c"
     ]
     
@@ -24,6 +24,8 @@ static_library("wifi_demo") {
         "//utils/native/lite/include",
         "//kernel/liteos_m/components/cmsis/2.0",
         "//base/iot_hardware/interfaces/kits/wifiiot_lite",
+        "//base/iot_hardware/peripheral/interfaces/kits",
+        "//device/board/isoftstone/qihang/iot_hardware_hals/include",
         "//foundation/communication/wifi_lite/interfaces/wifiservice",
         "//vendor/hisi/hi3861/hi3861/third_party/lwip_sack/include",
         "//vendor/hisi/hi3861/hi3861/third_party/paho_mqtt",
