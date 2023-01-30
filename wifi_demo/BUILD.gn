@@ -13,7 +13,7 @@
 
 static_library("wifi_demo") {
     sources = [
-        "tcp_client_test.c",
+        "tcp_server_test.c",
         "wifi_sta_connect.c"
     ]
     

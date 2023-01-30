@@ -55,19 +55,18 @@ static int tcp_client_task() {
     // 简单处理，循环处理各客户端连接请求
     while (1)
 	{
-        char *str="hello i'm siwei!";
         // unsigned char send_array[32]={0};
         // for(int i = 0;i<sizeof(send_array);i++){
         //     send_array[i]=i;
         // }
         memset_s(recvbuf,sizeof(recvbuf),0,sizeof(recvbuf));
 		
-        if ((ret = send(client_fd,str,strlen(str),0) ) == -1)
+        if ((ret = send(client_fd,qihangsendmsg,strlen(qihangsendmsg),0) ) == -1)
         {
             printf("tcp_client_task:send failed!\r\n");
             break;
         } else {
-            printf("send %d bytes:\r\n", strlen(str));
+            printf("send %d bytes:%s\n", strlen(qihangsendmsg),qihangsendmsg);
       
         }
         // sleep(2);
