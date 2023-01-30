@@ -3,9 +3,9 @@
 #include "ohos_init.h"
 #include "cmsis_os2.h"
 #include "iot_gpio.h"
-#define LED_TASK_GPIO 7
-#define LED_Time 30
-#define LED_TSIZE 512
+#define LED_TASK_GPIO 8
+#define LED_INTERVAL_TIME 30
+#define LED_TSIZE 2048
 #define LED_TPRIO 25
 #define IOT_GPIO_KEY 5
 enum LedState{
@@ -13,7 +13,7 @@ enum LedState{
     LED_OFF=1,
     LED_SPARK=2
 };
-enum LedState g_ledState = LED_SPARK;
+enum LedState g_ledState = LED_ON;
 static void *LedTask(const char *arg)
 {
     (void)arg;
@@ -21,46 +21,52 @@ static void *LedTask(const char *arg)
         switch (g_ledState)
         {
         case LED_ON:
-            IoTGpioSetOutputVal(LED_TASK_GPIO,0);
-            osDelay(10);
+            IoTGpioSetOutputVal(LED_TASK_GPIO,1);
+            osDelay(LED_INTERVAL_TIME);
             break;
         case LED_OFF:
-            IoTGpioSetOutputVal(LED_TASK_GPIO,1);
-            osDelay(10);
+            IoTGpioSetOutputVal(LED_TASK_GPIO,0);
+            osDelay(LED_INTERVAL_TIME);
+            break;
         case LED_SPARK:
             IoTGpioSetOutputVal(LED_TASK_GPIO,0);
-            osDelay(10);
+            osDelay(LED_INTERVAL_TIME);
             IoTGpioSetOutputVal(LED_TASK_GPIO,1);
-            osDelay(10);
+            osDelay(LED_INTERVAL_TIME);
+            break;
         default:
-            osDelay(10);
+            osDelay(LED_INTERVAL_TIME);
             break;
         }
     }
 }
-
+unsigned int lastCount;
 static GpioIsrCallbackFunc OnButtonPressed(char *arg){
     (void)arg;
+    unsigned int tickCount = osKernelGetTickCount();
+    unsigned int count = tickCount - lastCount;
+    lastCount = tickCount;
+    if (count<50){
+        printf("return\n");
+        return ;
+    }
+
     enum LedState nextState = LED_SPARK;
     switch (g_ledState)
     {
     case LED_ON:
         nextState = LED_SPARK;
-        printf("nextState = LED_SPARK");
         break;
     case LED_OFF:
         nextState = LED_ON;
-        printf("nextState = LED_ON");
         break;
     case LED_SPARK:
-        nextState = LED_OFF;
-        printf("nextState = LED_OFF");
+        nextState = LED_ON;
         break;
     default:
         break;
     }
     g_ledState = nextState;
-    printf("\ng_ledstate = nextstate");
 }
 
 static void LedExampleEntry(void)
@@ -75,7 +81,6 @@ static void LedExampleEntry(void)
     IoTGpioSetPull(IOT_GPIO_KEY,1);
 
     int ret = IoTGpioRegisterIsrFunc(IOT_GPIO_KEY,IOT_INT_TYPE_EDGE,IOT_GPIO_EDGE_FALL_LEVEL_LOW,OnButtonPressed,NULL);
-    printf("\n%d\n",ret);
     attr.name = "LedTask";
     attr.attr_bits = 0U;
     attr.cb_mem = NULL;
