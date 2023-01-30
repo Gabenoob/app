@@ -68,9 +68,9 @@ lite_component("app") {
         # "KP_GPS_example:gps_module",
         # "KP_MQ7_example:combustible_module",
         # "KP_GPIO_led2:gpioled_example2"
-        "KP_KEY:KP_KEY_demo"
+        # "KP_KEY:KP_KEY_demo"
         # "OLED:oled"
         # "temp_humi:temp_humi"
-        # "wifi_demo:wifi_demo"
+        "wifi_demo:wifi_demo"
     ]
 }

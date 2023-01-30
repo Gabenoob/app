@@ -13,7 +13,8 @@
 
 static_library("wifi_demo") {
     sources = [
-        "wifi_ap.c"
+        "wifi_ap.c",
+        "wifi_sta_connect.c"
     ]
     
     cflags = [ "-Wno-unused-variable" ]
@@ -21,8 +22,11 @@ static_library("wifi_demo") {
     
     include_dirs = [
         "//utils/native/lite/include",
-        "//base/iot_hardware/peripheral/interfaces/kits",
-        "//device/board/isoftstone/qihang/iot_hardware_hals/include",
+        "//kernel/liteos_m/components/cmsis/2.0",
+        "//base/iot_hardware/interfaces/kits/wifiiot_lite",
+        "//foundation/communication/wifi_lite/interfaces/wifiservice",
+        "//vendor/hisi/hi3861/hi3861/third_party/lwip_sack/include",
+        "//vendor/hisi/hi3861/hi3861/third_party/paho_mqtt",
         "include"
     ]
 }
