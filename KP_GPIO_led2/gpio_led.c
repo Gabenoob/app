@@ -7,16 +7,7 @@
 #define LED_TASK_GPIO2 8
 #define LED_Time 30
 #define LED_TSIZE 512
-#define LED_TPRIO 25#include <stdio.h>
-#include <unistd.h>
-#include "ohos_init.h"
-#include "cmsis_os2.h"
-#include "iot_gpio.h"
-#define LED_TASK_GPIO1 7
-#define LED_TASK_GPIO2 8
-#define LED_Time 30
-#define LED_TSIZE 512
-#define LED_TPRIO 25
+#define LED_TPRIO 2
 
 static void LedTask1(void)
 {

@@ -2,7 +2,9 @@ static_library("mqtt_demo") {
   sources = [
     "temp_humi_test.c",
     "mqtt.c",
-    "wifi_sta_connect.c"
+    "wifi_sta_connect.c",
+    "light.c",
+    "motor.c"
   ]
 
   include_dirs = [
