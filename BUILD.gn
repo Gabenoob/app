@@ -71,6 +71,7 @@ lite_component("app") {
         # "KP_KEY:KP_KEY_demo"
         # "OLED:oled"
         # "temp_humi:temp_humi"
-        "wifi_demo:wifi_demo"
+        # "wifi_demo:wifi_demo"
+        "mqtt_demo:mqtt_demo"
     ]
 }
