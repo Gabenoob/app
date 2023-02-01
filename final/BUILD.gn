@@ -1,0 +1,32 @@
+static_library("final_demo") {
+  sources = [
+    "temp_humi_test.c",
+    "mqttstart.c",
+    "wifi_sta_connect.c",
+    "light.c",
+    "motor.c",
+    "oled_module.c",
+    "oled.c",
+    "spi_screen.c",
+    "led_screen_main.c",
+    "test.c",
+    "gui.c",
+  ]
+
+  include_dirs = [
+
+    "//base/iot_hardware/peripheral/interfaces/kits",
+    "//device/board/isoftstone/qihang/iot_hardware_hals/include",
+    "//foundation/communication/wifi_lite/interfaces/wifiservice",
+    "//third_party/cJSON",
+    "include",
+    # "//device/board/isoftstone/qihang/third_party/paho_mqtt/MQTTClient/src",
+    "//device/board/isoftstone/qihang/third_party/paho_mqtt/MQTTPacket/src",
+    "//device/board/isoftstone/qihang/third_party/paho_mqtt/MQTTClient-C/src"
+  ]
+
+  deps = [
+
+    "//device/board/isoftstone/qihang/third_party/paho_mqtt:pahomqtt_static"
+  ]
+}

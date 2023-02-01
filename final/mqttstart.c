@@ -1,54 +1,61 @@
-/*******************************************************************************
- * Copyright (c) 2014 IBM Corp.
- *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * and Eclipse Distribution License v1.0 which accompany this distribution.
- *
- * The Eclipse Public License is available at
- *    http://www.eclipse.org/legal/epl-v10.html
- * and the Eclipse Distribution License is available at
- *   http://www.eclipse.org/org/documents/edl-v10.php.
- *
- * Contributors:
- *    Ian Craggs - initial API and implementation and/or initial documentation
- *    Sergio R. Caprile - clarifications and/or documentation extension
- *******************************************************************************/
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include "cmsis_os2.h"
-#include "ohos_init.h"
-
-#include "MQTTClient.h"
-#include "wifi_sta_connect.h"
-
-#include "cJSON.h"
-
-// #include "temp_data.h"
-#include "motor.h"
-#include "light.h"
-
-static unsigned char sendBuf[1000];
-static unsigned char readBuf[1000];
-
-#define WIFI_SSID "LIANGDONGWUYAO_Wi-Fi5"
-#define WIFI_PWD "AA6638AA"
-
-#define HOST_ADDR "bed309abac.iot-mqtts.cn-north-4.myhuaweicloud.com"
-
-#define Device_Id "6392ef2d98314b7a1c3ef412_test1"
-
-#define PUBLISH_TOPIC "$oc/devices/" Device_Id "/sys/properties/report"
-#define SUBCRIB_TOPIC "$oc/devices/" Device_Id "/sys/commands/#"         /// request_id={request_id}"
-#define RESPONSE_TOPIC "$oc/devices/" Device_Id "/sys/commands/response" /// request_id={request_id}"
-
-#define MOTOR_GPIO 2
-
-Network network;
-MQTTClient client;
+#include "mqttstart.h"
+int freq = 0;
+int value = 40000;
+void jSONDeCode(cJSON *root)
+{
+    extern int mode;
+    cJSON *cmd_type = cJSON_DetachItemFromObject(root, "command_name");
+    cJSON *paras = cJSON_DetachItemFromObject(root, "paras");
+    if (strcmp(cJSON_GetStringValue(cmd_type), "led_cmd") == 0)
+    {
+        cJSON *led_onoff = cJSON_DetachItemFromObject(paras, "led_onoff");
+        char *string = cJSON_GetStringValue(led_onoff);
+        if (mode != 4)
+            mode = 4;
+        sleep(1);
+        if (strcmp(string, "BLUE_ON") == 0)
+            Led_on_off(LED_ON, LED_GPIO_IDX_BLUE);
+        else if (strcmp(string, "BLUE_OFF") == 0)
+            Led_on_off(LED_OFF, LED_GPIO_IDX_BLUE);
+        else if (strcmp(string, "RED_ON") == 0)
+            Led_on_off(LED_ON, LED_GPIO_IDX_RED);
+        else if (strcmp(string, "RED_OFF") == 0)
+            Led_on_off(LED_OFF, LED_GPIO_IDX_RED);
+        else if (strcmp(string, "GREEN_ON") == 0)
+        {
+            value = 5;
+            IoTGpioSetFunc(LED_GPIO_IDX_GREEN, IOT_GPIO_FUNC_GPIO_2_GPIO);
+            Led_on_off(LED_ON, LED_GPIO_IDX_GREEN);
+        }
+        else if (strcmp(string, "GREEN_OFF") == 0)
+        {
+            value = 0;
+            Led_on_off(LED_OFF, LED_GPIO_IDX_GREEN);
+        }
+        else if (strcmp(string, "WHITE_ON") == 0)
+            Led_on_off(LED_ON, LED_GPIO_IDX_WHITE);
+        else if (strcmp(string, "WHITE_OFF") == 0)
+            Led_on_off(LED_OFF, LED_GPIO_IDX_WHITE);
+    }
+    else if (strcmp(cJSON_GetStringValue(cmd_type), "motor_control") == 0)
+    {
+        if (mode != 3)
+            mode = 3;
+        sleep(1);
+        IoTGpioSetFunc(MOTOR_GPIO, IOT_GPIO_FUNC_GPIO_2_PWM2_OUT);
+        IoTPwmInit(MOTOR_PWM_CHN);
+        cJSON *motor_spd = cJSON_DetachItemFromObject(paras, "motor_speed");
+        value = (int)cJSON_GetNumberValue(motor_spd);
+        cJSON *motor_freq = cJSON_DetachItemFromObject(paras, "motor_freq");
+        freq = (int)cJSON_GetNumberValue(motor_freq);
+        motor_speed(value, freq);
+    }
+    else if (strcmp(cJSON_GetStringValue(cmd_type), "switch_mode") == 0)
+    {
+        cJSON *modeNO = cJSON_DetachItemFromObject(paras, "mode");
+        mode = cJSON_GetNumberValue(modeNO);
+    }
+}
 
 void messageArrived(MessageData *data)
 {
@@ -98,26 +105,9 @@ void messageArrived(MessageData *data)
     cJSON *root = cJSON_ParseWithLength(data->message->payload, data->message->payloadlen);
     if (root != NULL)
     {
-        // 自行完成cjson的解析
         //{"paras":{"led_onoff":"OFF"},"service_id":"szfan","command_name":"led_cmd"}
         //{"paras":{"motor_speed":5},"service_id":"szfan","command_name":"motor_control"}
-        cJSON *cmd_type = cJSON_DetachItemFromObject(root, "command_name");
-        cJSON *paras = cJSON_DetachItemFromObject(root, "paras");
-        if (strcmp(cJSON_GetStringValue(cmd_type), "led_cmd") == 0)
-        {
-            cJSON *led_onoff = cJSON_DetachItemFromObject(paras, "led_onoff");
-            char *string = cJSON_GetStringValue(led_onoff);
-            if (strcmp(string, "ON")==0)
-                Led_on_off(LED_ON);
-            else
-                Led_on_off(LED_OFF);
-        }
-        else if (strcmp(cJSON_GetStringValue(cmd_type), "motor_control") == 0)
-        {
-            cJSON *motor_spd = cJSON_DetachItemFromObject(paras, "motor_speed");
-            double value = cJSON_GetNumberValue(motor_spd);
-            motor_speed(value);
-        }
+        jSONDeCode(root);
     }
 
     cJSON_Delete(root);
@@ -182,11 +172,6 @@ begin:
     while (++count)
     {
 
-        float temp;
-        float humi;
-
-        // SHT3X_ReadMeasurementBuffer(&temp,&humi);
-
         MQTTMessage message;
         char *publishtopic = PUBLISH_TOPIC;
 
@@ -197,8 +182,6 @@ begin:
 
         extern float g_temp;
         extern float g_humi;
-        // g_humi = humi;
-        // g_temp = temp;
 
         if (root != NULL)
         {
@@ -233,7 +216,7 @@ begin:
             printf("mqtt publish success:%s\n", payload);
         }
         MQTTYield(&client, 5000);
-        osDelay(500);
+        sleep(5);
     }
 }
 

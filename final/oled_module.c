@@ -23,12 +23,16 @@ void OLedTask(void * para) /* task处理函数 */
 void oled_demo(void)
 {    
     int ret;
+    IoTGpioInit(Button);
+    IoTGpioSetFunc(Button,0);
+    IoTGpioSetDir(Button,IOT_GPIO_DIR_IN);
+    IoTGpioSetPull(Button,1);
     oled_gpio_io_init();
 
     IotSpiCfgInitParam init_param={
         .isSlave = 0
     };
-
+    
     screen_spi_master_init(0); 
     osThreadAttr_t attr;
  

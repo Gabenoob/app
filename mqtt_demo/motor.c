@@ -12,7 +12,7 @@ int motor_speed(int speed){
         //close motor
         IoTPwmStop(MOTOR_PWM_CHN);
     }else{
-        IoTPwmStart(MOTOR_PWM_CHN, level, 40000);
+        IoTPwmStart(MOTOR_PWM_CHN, level, 20000);
     }
 
 }

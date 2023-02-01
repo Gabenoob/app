@@ -72,6 +72,7 @@ lite_component("app") {
         # "OLED:oled"
         # "temp_humi:temp_humi"
         # "wifi_demo:wifi_demo"
-        "mqtt_demo:mqtt_demo"
+        # "mqtt_demo:mqtt_demo"
+        "final:final_demo"
     ]
 }
